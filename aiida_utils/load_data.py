@@ -1,13 +1,14 @@
 from typing import List, Tuple
 
 import pandas as pd
+from tqdm.auto import tqdm
 from aiida.storage.sqlite_zip.backend import SqliteZipBackend
 from aiida import load_profile, get_profile
 from aiida.orm import Group, Node, QueryBuilder, User
 
-from . import find_connections
+from . import find_connections, find_creator_calc_job_nodes, memory, _get_node_by_pk
 
-def load_data(archive_file: str = "../data_Kahle2020/migrated.aiida") -> List[Tuple[Node, Node, Node]]:
+def _load_base_data(archive_file: str) -> List[Tuple[Node, Node, Node]]:
     load_profile(SqliteZipBackend.create_profile(archive_file))
 
     # Fixing missing user, as in https://aiida.discourse.group/t/setting-up-a-user-for-sqlitezipbackend/139/3
@@ -54,7 +55,28 @@ def load_data(archive_file: str = "../data_Kahle2020/migrated.aiida") -> List[Tu
     ]
     return connections_stru_traj_diff
 
-def load_data_pd(archive_file: str = "../data_Kahle2020/migrated.aiida") -> pd.DataFrame:
-    return pd.DataFrame(
-        load_data(archive_file), columns=["stru", "traj", "diff"],
+@memory.cache
+def get_temperature(creator_job_pks: List[int]) -> float:
+    creator_nodes = [_get_node_by_pk(pk) for pk in creator_job_pks]
+    (temp,) = set(
+        c.inputs["parameters"].get_dict()["IONS"]["tempw"]
+        for c in creator_nodes
     )
+    return float(temp)
+
+def load_data(archive_file: str = "../data_Kahle2020/migrated.aiida") -> pd.DataFrame:
+    print(f"load_data(): reading archive ({archive_file}) and linking nodes")
+    df = pd.DataFrame(
+        _load_base_data(archive_file), columns=["stru", "traj", "diff"],
+    )
+
+    print("load_data(): retrieving calc job nodes")
+    df["creators"] = find_creator_calc_job_nodes(df["traj"])
+
+    print("load_data(): extracting temperature info")
+    df["temp"] = [
+        get_temperature([c.pk for c in creators])
+        for creators in tqdm(df["creators"], desc="Extracting temperature info")
+    ]
+
+    return df

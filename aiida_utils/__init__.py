@@ -1,10 +1,12 @@
-from typing import Iterable, List, Literal, Tuple, Union
+from typing import (
+    Generator, Iterable, List, Literal, Optional, Tuple, Type, Union
+)
 
 from tqdm.auto import tqdm
 from joblib.memory import Memory
 from aiida.tools.graph.graph_traversers import traverse_graph
 from aiida.common import LinkType
-from aiida.orm import Node, QueryBuilder
+from aiida.orm import Node, QueryBuilder, CalcJobNode
 
 memory = Memory("cache/", verbose=0)
 
@@ -35,8 +37,10 @@ def _find_connections(
         for pk, trav in zip(pks1, travs)
     ]
 
-def _get_node_by_pk(pk: int) -> Node:
+def _get_node_by_pk(pk: int, assert_type: Optional[Type[Node]] = None) -> Node:
     (node,) = QueryBuilder().append(Node, filters={"id": pk}).all(flat=True)
+    if assert_type is not None:
+        assert isinstance(node, assert_type)
     return node
 
 def find_connections(
@@ -63,4 +67,47 @@ def find_connections(
             [_get_node_by_pk(n) for n in ll],
             [_get_node_by_pk(n) for n in rr],
         ) for ll, rr in results
+    ]
+
+@memory.cache(ignore=["verbose"])
+def _find_creator_calc_job_nodes(
+    pks: List[int],
+    verbose: bool,
+) -> List[List[int]]:
+    def _recurse_find_creators(node: Node) -> Generator[Node, None, None]:
+        if node.creator is None:
+            return
+        if isinstance(node.creator, CalcJobNode):
+            yield node.creator
+        else:
+            for key in node.creator.inputs:
+                for creator in _recurse_find_creators(node.creator.inputs[key]):
+                    yield creator
+
+    progress = tqdm if verbose else (
+        lambda x, *argv, **kwargs: x
+    )
+
+    creators = []
+    for pk in progress(pks, desc="Searching for creator calc jobs"):
+        (node,) = QueryBuilder().append(Node, filters=dict(id=pk)).all(flat=True)
+        creators.append([
+            c.pk for c in _recurse_find_creators(node)
+        ])
+    return creators
+
+def find_creator_calc_job_nodes(
+    nodes: Iterable[Union[Node, int]],
+    verbose: bool = True,
+) -> List[List[CalcJobNode]]:
+    progress = tqdm if verbose else (
+        lambda x, *argv, **kwargs: x
+    )
+
+    pks = [n if isinstance(n, int) else n.pk for n in nodes]
+    creator_pks = _find_creator_calc_job_nodes(pks, verbose)
+
+    return [
+        [_get_node_by_pk(pk, CalcJobNode) for pk in pk_set]
+        for pk_set in progress(creator_pks, desc="Getting calc job nodes by pk")
     ]
