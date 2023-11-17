@@ -87,6 +87,7 @@ def load_data(archive_file: str = "../data_Kahle2020/migrated.aiida") -> pd.Data
     df["diff_mean"] = [arr.attributes["Li"]["diffusion_mean_cm2_s"] for arr in df["diff"]]
     df["diff_std"] = [arr.attributes["Li"]["diffusion_std_cm2_s"] for arr in df["diff"]]
     df["diff_sem"] = [arr.attributes["Li"]["diffusion_sem_cm2_s"] for arr in df["diff"]]
+    df[["diff_mean", "diff_std", "diff_sem"]] = df[["diff_mean", "diff_std", "diff_sem"]].astype("float64")
 
     print("load_data(): extracting labels and ase structures")
     df["stru_label"] = [stru.label for stru in df["stru"]]
@@ -94,7 +95,8 @@ def load_data(archive_file: str = "../data_Kahle2020/migrated.aiida") -> pd.Data
 
     print("load_data(): extracting source DB info")
     df["stru_db"] = [stru.extras.get("source", {}).get("db_name", "NA") for stru in df["stru"]]
-    df["stru_id"] = [stru.extras.get("source", {}).get("id", "NA") for stru in df["stru"]]
+    df["stru_id"] = [stru.extras.get("source", {}).get("id", -1) for stru in df["stru"]]
+    df["stru_id"] = df["stru_id"].astype(int)
 
     return df
 
