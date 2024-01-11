@@ -18,3 +18,4 @@ pip install aiida
 verdi archive migrate screening.aiida migrated.aiida
 ```
 Note: this doubles the amount of disk space used. There's some configuration of the above command that does this inplace to save space (check out the docs).
+# material-project
