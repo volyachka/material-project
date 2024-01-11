@@ -1,0 +1,38 @@
+# generated using pymatgen
+data_LiInP2O7
+_symmetry_space_group_name_H-M   P2_1
+_cell_length_a   4.99917765
+_cell_length_b   8.61283311
+_cell_length_c   7.16100843
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   108.92279791
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   4
+_chemical_formula_structural   LiInP2O7
+_chemical_formula_sum   'Li2 In2 P4 O14'
+_cell_volume   291.66875374
+_cell_formula_units_Z   2
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, y+1/2, -z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  2  0.18739933  0.60818908  0.66173557  1.0
+  In  In1  2  0.21230059  0.25425162  0.73154230  1.0
+  P  P2  2  0.21364594  0.54280377  0.07840774  1.0
+  P  P3  2  0.40041719  0.93423480  0.53358045  1.0
+  O  O4  2  0.05196204  0.07099261  0.86582897  1.0
+  O  O5  2  0.14541213  0.46182073  0.87645190  1.0
+  O  O6  2  0.20729889  0.78983323  0.49689920  1.0
+  O  O7  2  0.23121899  0.08718101  0.50512025  1.0
+  O  O8  2  0.38038516  0.69252287  0.07821381  1.0
+  O  O9  2  0.39466933  0.43514407  0.58687512  1.0
+  O  O10  2  0.41332104  0.41809664  0.23446948  1.0

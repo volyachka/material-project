@@ -1,0 +1,46 @@
+# generated using pymatgen
+data_LiGaBr3
+_symmetry_space_group_name_H-M   P1
+_cell_length_a   6.71994453
+_cell_length_b   8.48573237
+_cell_length_c   11.03863145
+_cell_angle_alpha   87.96515660
+_cell_angle_beta   88.54829003
+_cell_angle_gamma   84.29421984
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   LiGaBr3
+_chemical_formula_sum   'Li4 Ga4 Br12'
+_cell_volume   625.79896816
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  1  0.41704370  0.07444347  0.98500482  1.0
+  Li  Li1  1  0.53581925  0.99945774  0.46493212  1.0
+  Li  Li2  1  0.98408649  0.46009828  0.51815722  1.0
+  Li  Li3  1  0.98930289  0.42178368  0.92869339  1.0
+  Ga  Ga4  1  0.06339564  0.98520101  0.25810875  1.0
+  Ga  Ga5  1  0.12318548  0.26325888  0.26252864  1.0
+  Ga  Ga6  1  0.88111540  0.74709617  0.75309891  1.0
+  Ga  Ga7  1  0.96163671  0.02217696  0.75393253  1.0
+  Br  Br8  1  0.15244362  0.53435187  0.72926451  1.0
+  Br  Br9  1  0.21819343  0.84058510  0.43017590  1.0
+  Br  Br10  1  0.22371348  0.85742655  0.08286342  1.0
+  Br  Br11  1  0.29063259  0.34866738  0.06967072  1.0
+  Br  Br12  1  0.30715188  0.07831954  0.75966165  1.0
+  Br  Br13  1  0.34655028  0.30813434  0.42585556  1.0
+  Br  Br14  1  0.68183937  0.69769212  0.58201715  1.0
+  Br  Br15  1  0.71573460  0.93658647  0.25762411  1.0
+  Br  Br16  1  0.71820531  0.65450122  0.93481356  1.0
+  Br  Br17  1  0.79763010  0.16797489  0.92559129  1.0
+  Br  Br18  1  0.81934578  0.17891889  0.58119402  1.0
+  Br  Br19  1  0.86233816  0.47118864  0.29399780  1.0

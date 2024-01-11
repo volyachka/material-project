@@ -1,0 +1,47 @@
+# generated using pymatgen
+data_Li4TaN3
+_symmetry_space_group_name_H-M   Ibca
+_cell_length_a   4.91591021
+_cell_length_b   9.72514581
+_cell_length_c   14.16825399
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   73
+_chemical_formula_structural   Li4TaN3
+_chemical_formula_sum   'Li32 Ta8 N24'
+_cell_volume   677.35508703
+_cell_formula_units_Z   8
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, -y+1/2, z'
+  4  'x, y+1/2, -z'
+  5  'x, -y, -z+1/2'
+  6  '-x, y, z+1/2'
+  7  '-x, y+1/2, -z+1/2'
+  8  'x, -y+1/2, z+1/2'
+  9  'x+1/2, y+1/2, z+1/2'
+  10  '-x+1/2, -y+1/2, -z+1/2'
+  11  '-x+1/2, -y, z+1/2'
+  12  'x+1/2, y, -z+1/2'
+  13  'x+1/2, -y+1/2, -z'
+  14  '-x+1/2, y+1/2, z'
+  15  '-x+1/2, y, -z'
+  16  'x+1/2, -y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  16  0.02446520  0.03597821  0.91468953  1.0
+  Li  Li1  8  0.00000000  0.25000000  0.27423334  1.0
+  Li  Li2  8  0.09622997  0.00000000  0.75000000  1.0
+  Ta  Ta3  8  0.00000000  0.25000000  0.08073397  1.0
+  N  N4  16  0.18168156  0.12447884  0.16373176  1.0
+  N  N5  8  0.25000000  0.13388178  0.50000000  1.0

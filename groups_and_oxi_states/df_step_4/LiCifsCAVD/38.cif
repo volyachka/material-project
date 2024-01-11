@@ -1,0 +1,41 @@
+# generated using pymatgen
+data_CsLi3Cl4
+_symmetry_space_group_name_H-M   Cmc2_1
+_cell_length_a   4.12315618
+_cell_length_b   31.64038891
+_cell_length_c   6.12305890
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   36
+_chemical_formula_structural   CsLi3Cl4
+_chemical_formula_sum   'Cs4 Li12 Cl16'
+_cell_volume   798.80364133
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, z+1/2'
+  3  '-x, y, z'
+  4  'x, -y, z+1/2'
+  5  'x+1/2, y+1/2, z'
+  6  '-x+1/2, -y+1/2, z+1/2'
+  7  '-x+1/2, y+1/2, z'
+  8  'x+1/2, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cs  Cs0  4  0.00000000  0.15415858  0.78592128  1.0
+  Li  Li1  4  0.00000000  0.03007413  0.81005937  1.0
+  Li  Li2  4  0.00000000  0.27684163  0.79098665  1.0
+  Li  Li3  4  0.00000000  0.42514520  0.81595546  1.0
+  Cl  Cl4  4  0.00000000  0.04168150  0.19768848  1.0
+  Cl  Cl5  4  0.00000000  0.25477455  0.16086719  1.0
+  Cl  Cl6  4  0.00000000  0.35050403  0.76146936  1.0
+  Cl  Cl7  4  0.00000000  0.43558951  0.20188916  1.0

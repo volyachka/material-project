@@ -1,0 +1,45 @@
+# generated using pymatgen
+data_Cs2Li3(BO2)5
+_symmetry_space_group_name_H-M   C222_1
+_cell_length_a   7.22560000
+_cell_length_b   11.65830000
+_cell_length_c   12.78170000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   20
+_chemical_formula_structural   Cs2Li3(BO2)5
+_chemical_formula_sum   'Cs8 Li12 B20 O40'
+_cell_volume   1076.70756046
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, z+1/2'
+  3  'x, -y, -z'
+  4  '-x, y, -z+1/2'
+  5  'x+1/2, y+1/2, z'
+  6  '-x+1/2, -y+1/2, z+1/2'
+  7  'x+1/2, -y+1/2, -z'
+  8  '-x+1/2, y+1/2, -z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cs  Cs0  4  0.00000000  0.22753000  0.25000000  1.0
+  Cs  Cs1  4  0.20383000  0.50000000  0.50000000  1.0
+  Li  Li2  8  0.13120000  0.30820000  0.95500000  1.0
+  Li  Li3  4  0.00000000  0.32770000  0.75000000  1.0
+  B  B4  8  0.12610000  0.17410000  0.57910000  1.0
+  B  B5  8  0.22430000  0.49150000  0.16410000  1.0
+  B  B6  4  0.00000000  0.09880000  0.75000000  1.0
+  O  O7  8  0.00640000  0.17510000  0.84190000  1.0
+  O  O8  8  0.11530000  0.24450000  0.49850000  1.0
+  O  O9  8  0.11960000  0.41700000  0.84780000  1.0
+  O  O10  8  0.16430000  0.02510000  0.75040000  1.0
+  O  O11  8  0.22490000  0.40330000  0.08820000  1.0
