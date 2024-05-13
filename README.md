@@ -1,6 +1,8 @@
 # Material project
 
+The exploration of solid electrolytes is a compelling research area due to their potential to revolutionize energy storage technologies. Compared to liquid electrolytes, solid-state electrolytes are expected to improve safety and increase energy density. However, addressing challenges such as low ionic and long-term stability remains essential for their widespread adoption. In this work, we aim to complement the expensive computational methods for predicting ionic conductivity in solids with a machine learning-based approach to enable a larger-scale search for promising solid electrolyte materials. 
+
+This work introduces a data-driven approach to accelerate the discovery of solid-state electrolytes, leveraging machine learning to uncover structure-property correlations and inform future materials research. The aim of study to present a compilation of structures that may harbor innovative li-ion conductors, with the intention to subject this compilation to testing via the Density Functional Theory approach. Density Functional Theory is a computational quantum mechanical modeling method used in physics, chemistry, and materials science to investigate the electronic structure (the distribution of electrons) of atoms and molecules. The DFT method involves complex mathematical algorithms and computational techniques to solve the equations governing the behavior of electrons within a material. It requires sophisticated software and considerable computational resources to accurately model the interactions and properties of materials at the atomic level, so only preemptively selected structures can be checked through this method.
+
 This repo contains code for exploring the data shared along with the paper [doi:10.1039/C9EE02457C](https://dx.doi.org/10.1039/C9EE02457C). The actual data is located [here](https://archive.materialscloud.org/record/2019.0077/v1).
-
-
 
