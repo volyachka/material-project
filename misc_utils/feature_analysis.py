@@ -67,19 +67,58 @@ def add_feature(
     ], axis=0)
     return dfs, features_meta_info
 
+
+def add_feature_np(
+    dfs: List[pd.DataFrame],
+    features_meta_info: pd.DataFrame,
+    values: List[np.array],
+    name: str,
+    type: str,
+    level: float,
+    weighted_direction: float = 1.0,
+) -> Tuple[List[pd.DataFrame], pd.DataFrame]:
+    assert name not in features_meta_info.index
+    dfs = [df.copy() for df in dfs]
+    for df, value in zip(dfs, values):
+        assert name not in df.columns
+        df[name] = value
+    features_meta_info = pd.concat([
+        features_meta_info,
+        pd.DataFrame([
+            dict(
+                feature=name,
+                level=level,
+                type=type,
+                weighted_direction=weighted_direction,
+            )
+        ]).set_index("feature"),
+    ], axis=0)
+    return dfs, features_meta_info
+
+
 def plot_features_Kahle2020(
     features: List[str],
     preds_df: pd.DataFrame,
     transform_barriers: bool = True,
-    base_target_column: str = "sigma_S_cm",
+    base_target_column: str = "condNE1000",
     base_target_thr: float = 1e-2,
     base_target_clip_low: float = 1e-7,
     base_target_lims: Tuple[float] = (-7.5, 4.5),
-    extrap_target_column: str = "sigma_S_cm",
-):
+    extrap_target_column: str = "log10condNE300",
+    inset_ylabel: str = "extrap",
+    main_ylabel: str = "log10(cond.NE @ 1000K [S / cm])",
+    ncols: int = 3,
+    fig: Optional[plt.Figure] = None,
+    xlabel_map: Optional[dict] = None,
+    main_fill_colored: bool = False,
+    triangle_clipped: bool = False,
+) -> plt.Figure:
     preds_df = preds_df.copy()
-    nrows = int(np.ceil(len(features) / 3))
-    plt.figure(figsize=(16, 4 * nrows))
+    nrows = int(np.ceil(len(features) / ncols))
+    if fig is None:
+        fig = plt.figure(figsize=(16, 4 * nrows))
+    else:
+        fig = plt.figure(fig)
 
     for iplot, col in enumerate(features, 1):
 
@@ -96,18 +135,25 @@ def plot_features_Kahle2020(
         xlims = _f(preds_df[col])
         xlims = (xlims.min() / 2, xlims.max() * 2)
 
-        ax = plt.subplot(nrows, 3, iplot)
+        ax = plt.subplot(nrows, ncols, iplot)
         ax2 = ax.inset_axes(
-            [0.6, 0.78, 0.4, 0.22], xscale="log", xlim=xlims, ylabel="extrap"
+            [0.6, 0.78, 0.4, 0.22], xscale="log", xlim=xlims, ylabel=inset_ylabel,
         )
         plt.sca(ax)
         sel1 = preds_df[base_target_column] < base_target_thr
         sel2 = (~sel1) & preds_df[extrap_target_column].isna()
-        plt.errorbar(
-            _f(preds_df[col].loc[sel1]),
-            y=np.log10((preds_df[base_target_column].clip(lower=base_target_clip_low)).loc[sel1]),
-            color='k', fmt='o',
-        )
+        if triangle_clipped:
+            xx = _f(preds_df[col].loc[sel1])
+            yy = np.log10((preds_df[base_target_column].clip(lower=base_target_clip_low)).loc[sel1])
+            clip_sel = np.isclose(yy, np.log10(base_target_clip_low))
+            plt.errorbar(xx[~clip_sel], y=yy[~clip_sel], color='k', fmt='o')
+            plt.errorbar(xx[clip_sel], y=yy[clip_sel], color='k', fmt='v')
+        else:
+            plt.errorbar(
+                _f(preds_df[col].loc[sel1]),
+                y=np.log10((preds_df[base_target_column].clip(lower=base_target_clip_low)).loc[sel1]),
+                color='k', fmt='o',
+            )
         plt.plot(
             _f(preds_df[col].loc[sel2]),
             np.log10((preds_df[base_target_column].clip(lower=base_target_clip_low)).loc[sel2]),
@@ -130,22 +176,26 @@ def plot_features_Kahle2020(
                 y=np.log10(row[base_target_column]),
                 fmt='o',
                 markeredgecolor=color,
-                markerfacecolor='#00000000',
+                markerfacecolor=color if main_fill_colored else '#00000000',
             )
 
 
         plt.xscale("log")
-        plt.xlabel(f"1 / {col}" if ("barrier" in col) and transform_barriers else col)
+        if xlabel_map is not None:
+            plt.xlabel(xlabel_map[col])
+        else:
+            plt.xlabel(f"1 / {col}" if ("barrier" in col) and transform_barriers else col)
         plt.xlim(*xlims)
-        plt.ylabel("log10(cond.NE @ 1000K [S / cm])")
+        plt.ylabel(main_ylabel)
         plt.ylim(*base_target_lims)
 
     plt.tight_layout()
+    return fig
 
 class MetricsParams:
-    extrapolated_target: str = "sigma_S_cm"
+    extrapolated_target: str = "log10condNE300"
     extrapolated_target_clip_low: float = 1e-6
-    base_target: str = "sigma_S_cm"
+    base_target: str = "condNE1000"
     base_target_clip_low: float = 1e-7
     base_target_min_positive: float = 1e-2
     weight_col: str = "w_extrap"
@@ -274,10 +324,14 @@ class ROClikeComparisonMetrics(MetricsParams):
         else:
             raise NotImplementedError(dataset_type)
 
-        preds_df["positive_prob"] = erfc(
+        sample_weights = 1.0
+        if "sample_weight" in preds_df.columns:
+            print("Found sample weights!")
+            sample_weights = preds_df["sample_weight"]
+        preds_df["positive_prob"] = sample_weights * erfc(
             (positive_thr - preds_df[positive_prob_src].fillna(-99999)) / preds_df[f"{positive_prob_src}_err"].fillna(1.0)
         ) / 2
-        preds_df["negative_prob"] = erfc(
+        preds_df["negative_prob"] = sample_weights * erfc(
             -(negative_thr - preds_df[negative_prob_src]) / preds_df[f"{negative_prob_src}_err"]
         ) / 2
 
@@ -313,7 +367,7 @@ class ROClikeComparisonMetrics(MetricsParams):
                 preds_df=pred_df,
                 num_negatives_max=num_negatives_max,
                 features_meta_info=features_meta_info,
-            )["score"] for pred_df in bs_preds_dfs
+            )["score"] for pred_df in tqdm(bs_preds_dfs)
         ], axis=1)
 
         scores_df = ROClikeComparisonMetrics._eval_features_central(

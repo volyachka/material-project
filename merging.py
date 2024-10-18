@@ -9,7 +9,7 @@ from numpy import nan as Nan
 from numpy import inf as inf
 from tqdm import notebook as tqdm
 from scipy.sparse import csr_matrix
-from utils import load_csv, save_csv
+from utils import load_csv
 
 from pymatgen.core import Structure
 from ase import units
@@ -95,18 +95,9 @@ def make_features(path):
     cnt_and_name_features = {}
 
     for file in files:
-        if re.search('mask', file):
-            print(file)
-            continue
-        if re.search('SOAP', file):
-            features = csr_matrix(np.load(io.BytesIO(open('{}/{}'.format(path, file), 'rb').read()), allow_pickle=True).all())
-            lost_features_count, _ = nan_and_inf_finder_SOAP(features)
-        elif re.search('ipynb_checkpoints', file):
-            next
-        else:
-            features = np.load('{}/{}'.format(path, file), allow_pickle=True)
-            feature_list.append(features)
-            lost_features_count, _ = nan_and_inf_finder(features)
+        features = np.load('{}/{}'.format(path, file), allow_pickle=True)
+        feature_list.append(features)
+        lost_features_count, _ = nan_and_inf_finder(features)
 
         name_of_features.append(file.split('_mode-structure', 1)[0])
         # print(file, name_of_features[-1], features.shape)
@@ -226,7 +217,7 @@ def dataset_preprocessing(df, structure_column):
 
     return df
 
-def get_featurizers_features():
+def get_featurizers_features_kahle():
     """
     Pull together features from matminer.featurizers to single dataset
     ----------
@@ -309,3 +300,4 @@ def get_nn_features_kahle():
     df_kahle_fin = df_barrier_features_kahle.merge(kahle, left_on = ['src_id', 'diffusion_mean_cm2_s'], right_on = ['src_id', 'diffusion_mean_cm2_s'])
     df_kahle_fin = dataset_preprocessing(df_kahle_fin, 'structure')
 
+    return df_kahle_fin

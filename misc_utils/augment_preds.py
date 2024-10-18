@@ -57,5 +57,26 @@ def join_data_and_preds_exp(
     df_data_exp_mp: pd.DataFrame,
 ) -> pd.DataFrame:
     df_preds_mp_exp = df_preds_full_mp.set_index("material_id").loc[df_data_exp_mp["mp"]].reset_index().copy()
-    df_preds_mp_exp[["sigma_S_cm", "Ea"]] = df_data_exp_mp[["σ(RT)(S cm-1)", "Ea (eV)"]]
+    df_preds_mp_exp[["sigma_S_cm", "Ea", "icsd"]] = df_data_exp_mp[["σ(RT)(S cm-1)", "Ea (eV)", "icsd"]]
+    df_preds_mp_exp = df_preds_mp_exp.join(
+        1.0 / df_preds_mp_exp.groupby("material_id").size().rename("sample_weight"),
+        on="material_id",
+    )
     return df_preds_mp_exp
+
+def join_data_and_preds_icsd(
+    df_preds_icsd: pd.DataFrame,
+    df_data_exp_full: pd.DataFrame,
+) -> pd.DataFrame:
+    data_icsd = df_data_exp_full.query("~`ICSD Entry`.isna()").reset_index(drop=True)
+    data_icsd["ICSD Entry"] = data_icsd["ICSD Entry"].astype(int)
+    data_icsd = data_icsd[["ICSD Entry", "σ(RT)(S cm-1)", "Ea (eV)"]].set_index("ICSD Entry")
+    data_icsd.columns = ["sigma_S_cm", "Ea"]
+
+    assert df_preds_icsd.groupby(["icsd"])["icdd_pdf"].apply(lambda x: len(x.unique()) == 1).all()
+    df_preds_icsd = df_preds_icsd.join(
+        1.0 / df_preds_icsd.groupby("icsd").size().rename("sample_weight"),
+        on="icsd",
+    )
+
+    return df_preds_icsd.join(data_icsd, on="icsd")
