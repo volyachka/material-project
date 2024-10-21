@@ -301,3 +301,36 @@ def get_nn_features_kahle():
     df_kahle_fin = dataset_preprocessing(df_kahle_fin, 'structure')
 
     return df_kahle_fin
+
+
+def get_nn_features_mpdb():
+    df_barrier_features_mpdb = pd.read_csv('datasets/exported.predictions.mp.v2.csv')
+
+    barrier_robust_0p_features = list(filter(lambda x: x.find('barrier_robust_0p') != -1 and x.find('masked1p5') == -1, df_barrier_features_mpdb.columns.to_list()))
+    union_features = list(filter(lambda x: x.find('union') != -1 and x.find('masked1p5') == -1, df_barrier_features_mpdb.columns.to_list()))
+    df_barrier_features_mpdb = df_barrier_features_mpdb[barrier_robust_0p_features + union_features + ['material_id']]
+
+    return df_barrier_features_mpdb
+
+
+def get_nn_features_exp():
+    preds_mp = pd.read_csv("datasets/exported.predictions.mp.v2.csv")
+    ref_mp = pd.read_csv("datasets/mp_Laskowski2023_map.csv")
+
+    preds_mp_exp_initial = join_data_and_preds_exp(
+        df_preds_full_mp=preds_mp,
+        df_data_exp_mp=ref_mp,
+    )
+
+    preds_icsd_exp = join_data_and_preds_icsd(
+        df_preds_icsd=pd.read_csv("datasets/exported.predictions.icsd.v3.csv"),
+        df_data_exp_full=pd.read_csv("datasets/digitized_data_for_SSEs.csv"),
+    )
+
+    preds_mp_exp = pd.concat([preds_mp_exp_initial, preds_icsd_exp], axis=0).reset_index(drop=True)
+
+    barrier_robust_0p_features = list(filter(lambda x: x.find('barrier_robust_0p') != -1 and x.find('masked1p5') == -1, preds_mp_exp.columns.to_list()))
+    union_features = list(filter(lambda x: x.find('union') != -1 and x.find('masked1p5') == -1, preds_mp_exp.columns.to_list()))
+    preds_mp_exp = preds_mp_exp[barrier_robust_0p_features + union_features + ['sample_weight', 'material_id']]
+
+    return preds_mp_exp

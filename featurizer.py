@@ -130,13 +130,14 @@ class Feature_Creator:
         Calculates the yang solid solution information from matminer.featurizers.composition.YangSolidSolution() 
     """
     
-    def __init__(self, structures_df, path):     
+    def __init__(self, structures_df, fit_structure, path):     
         self.structures_df = structures_df
         self.mode_list = ['structure', 'structure_A', 'structure_AM', 'structure_CAN', 'structure_CAMN', 'structure_A40', 'structure_AM40', 'structure_CAN40', 'structure_CAMN40']
         self.mode = 'structure'
         self.unique_atoms = []
         self.n_jobs = 63
         self.path = path
+        self.fit_structure = fit_structure
     
     def set_mode(self, mode):
         """
@@ -223,7 +224,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         bf_featurizer = mm_structure.BondFractions()
-        bf_featurizer.fit(self.structures_df[self.mode])
+        bf_featurizer.fit(self.fit_structure[self.mode])
         bf_featurizer.set_n_jobs = self.n_jobs
         bf_featurizer_result = bf_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/bf_features_mode-{}'.format(self.path, self.mode), bf_featurizer_result)
@@ -240,7 +241,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         co_featurizer = mm_structure.ChemicalOrdering()
-        co_featurizer.fit(self.structures_df[self.mode])
+        co_featurizer.fit(self.fit_structure[self.mode])
         co_featurizer.set_n_jobs = self.n_jobs
         co_featurizer_result = co_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/co_features_mode-{}'.format(self.path, self.mode), co_featurizer_result)
@@ -257,7 +258,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         density_featurizer = mm_structure.DensityFeatures(("density", "vpa", "packing fraction"))
-        density_featurizer.fit(self.structures_df[self.mode])
+        density_featurizer.fit(self.fit_structure[self.mode])
         density_featurizer.set_n_jobs = self.n_jobs
         density_featurizer_result = density_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/density_features_mode-{}'.format(self.path, self.mode), density_featurizer_result)
@@ -310,7 +311,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         ee_featurizer = mm_structure.EwaldEnergy()
-        ee_featurizer.fit(self.structures_df[self.mode])
+        ee_featurizer.fit(self.fit_structure[self.mode])
         ee_featurizer.set_n_jobs = self.n_jobs
         ee_featurizer_result = ee_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/ee_features_mode-{}'.format(self.path, self.mode), ee_featurizer_result)
@@ -332,7 +333,7 @@ class Feature_Creator:
         self.set_mode(mode)
         for rcut in rcut_list:
             gii_featurizer = mm_structure.GlobalInstabilityIndex(r_cut=rcut)
-            gii_featurizer.fit(self.structures_df[self.mode])
+            gii_featurizer.fit(self.fit_structure[self.mode])
             gii_featurizer.set_n_jobs = self.n_jobs
             gii_featurizer_result = gii_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
             np.save('{}/gii_features_rcut-{}_mode-{}'.format(self.path, rcut, self.mode), gii_featurizer_result)
@@ -349,7 +350,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         jcfid_featurizer = mm_structure.JarvisCFID()
-        jcfid_featurizer.fit(self.structures_df[self.mode])
+        jcfid_featurizer.fit(self.fit_structure[self.mode])
         jcfid_featurizer.set_n_jobs = self.n_jobs
         jcfid_featurizer_result = jcfid_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/jcfid_features_mode-{}'.format(self.path, self.mode), jcfid_featurizer_result)
@@ -366,7 +367,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         mpe_featurizer = mm_structure.MaximumPackingEfficiency()
-        mpe_featurizer.fit(self.structures_df[self.mode])
+        mpe_featurizer.fit(self.fit_structure[self.mode])
         mpe_featurizer.set_n_jobs = self.n_jobs
         mpe_featurizer_result = mpe_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/mpe_features_mode-{}'.format(self.path, self.mode), mpe_featurizer_result)
@@ -398,7 +399,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         ofm_featurizer = mm_structure.OrbitalFieldMatrix(period_tag=True)
-        ofm_featurizer.fit(self.structures_df[self.mode])
+        ofm_featurizer.fit(self.fit_structure[self.mode])
         ofm_featurizer.set_n_jobs = self.n_jobs
         ofm_featurizer_result = ofm_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/ofm_features_mode-{}'.format(self.path, self.mode), ofm_featurizer_result)
@@ -443,7 +444,7 @@ class Feature_Creator:
         for cutoff in cutoff_list:
             for bin_size in bin_size_list:
                 rdf_featurizer = mm_structure.RadialDistributionFunction(cutoff=cutoff, bin_size=bin_size)
-                rdf_featurizer.fit(self.structures_df[self.mode])
+                rdf_featurizer.fit(self.fit_structure[self.mode])
                 rdf_featurizer.set_n_jobs = self.n_jobs
                 rdf_featurizer_result = rdf_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
                 
@@ -471,7 +472,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         scm_featurizer = mm_structure.SineCoulombMatrix()
-        scm_featurizer.fit(self.structures_df[self.mode])
+        scm_featurizer.fit(self.fit_structure[self.mode])
         scm_featurizer.set_n_jobs = self.n_jobs
         scm_featurizer_result = scm_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/scm_features_mode-{}'.format(self.path, self.mode), scm_featurizer_result)
@@ -535,7 +536,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         sc_featurizer = mm_structure.StructuralComplexity()
-        sc_featurizer.fit(self.structures_df[self.mode])
+        sc_featurizer.fit(self.fit_structure[self.mode])
         sc_featurizer.set_n_jobs = self.n_jobs
         sc_featurizer_result = sc_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/sc_features_mode-{}'.format(self.path, self.mode), sc_featurizer_result)
@@ -552,7 +553,7 @@ class Feature_Creator:
         """
         self.set_mode(mode)
         sh_featurizer = mm_structure.StructuralHeterogeneity()
-        sh_featurizer.fit(self.structures_df[self.mode])
+        sh_featurizer.fit(self.fit_structure[self.mode])
         sh_featurizer.set_n_jobs = self.n_jobs
         sh_featurizer_result = sh_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
         np.save('{}/sh_features_mode-{}'.format(self.path, self.mode), sh_featurizer_result)
@@ -590,7 +591,7 @@ class Feature_Creator:
         self.set_mode(mode)
         for pattern_length in pattern_length_list:
             xrd_featurizer = mm_structure.XRDPowderPattern(pattern_length=pattern_length)
-            xrd_featurizer.fit(self.structures_df[self.mode])
+            xrd_featurizer.fit(self.fit_structure[self.mode])
 
             xrd_featurizer.set_n_jobs = self.n_jobs
             xrd_featurizer_result = xrd_featurizer.featurize_many(self.structures_df[self.mode], ignore_errors=True)
