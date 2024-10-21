@@ -5,12 +5,11 @@ import math
 from utils import bootstrap_roc_auc
 
 from catboost import CatBoostClassifier
-from lightgbm import LGBMClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import LeaveOneOut
 from catboost import CatBoostClassifier, Pool
 
-from training_functions_backup import train_loop, calculate_ROClikeComparisonMetricsKahle, plot_distribution_compared
+from training_functions import train_loop, calculate_ROClikeComparisonMetricsKahle, plot_distribution_compared
 from tqdm import trange
 from sklearn.metrics import roc_auc_score
 
@@ -357,6 +356,7 @@ class ModelEvaluation():
         self.feature_entarances = np.zeros(self.X.shape[1])
 
         self.random_splits = np.random.randint(10000, size = num_of_evaluations)
+        print(self.random_splits)
 
         self.preds_kahle = []
         self.preds_mpdb = []
@@ -407,7 +407,9 @@ class ModelEvaluation():
         self.feature_entarances = np.zeros(self.X.shape[1])
 
         self.random_splits = np.random.randint(10000, size = num_of_evaluations)
+        print(self.random_splits)
 
+        # self.random_splits = np.array([1712, 9072, 2749, 8903, 3385, 4226, 4061,  663, 9294,  164])
         self.preds_kahle = []
         self.preds_mpdb = []
         self.preds_exp = []
@@ -614,11 +616,11 @@ class ModelEvaluation():
             self.get_aggregated_statistics()
 
         results = pd.DataFrame({
-              'mean train roc-auc averaged by 40 models': [np.array(self.train_roc_auc)[:, 0].mean()],
+              f'mean train roc-auc averaged by {self.num_of_evaluations} models': [np.array(self.train_roc_auc)[:, 0].mean()],
               'roc_auc on test by aggregated preds': [self.roc_auc_averaged[-1][0]],
-              'mean test roc-auc averaged by 40 models': [np.array(self.test_roc_auc)[:, 0].mean()],
+              f'mean test roc-auc averaged by {self.num_of_evaluations} models': [np.array(self.test_roc_auc)[:, 0].mean()],
               'roc_like_comparison by aggregated preds': [self.roc_like_comparison_averaged[-1]],
-              'roc_like_comparison averaged by 40 models': [np.array(self.roc_like_comparison).mean()],
+              f'roc_like_comparison averaged by {self.num_of_evaluations} models': [np.array(self.roc_like_comparison).mean()],
               'roc_like_comparison std': [np.array(self.roc_like_comparison).std()]
               }).T
               

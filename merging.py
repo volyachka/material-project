@@ -289,15 +289,16 @@ def get_featurizers_features_mpdb():
     return df_mpdb_plane, cnt_and_name_features_mpdb
 
 
+
 def get_nn_features_kahle():
-    df_barrier_features_kahle = pd.read_csv('fv.v2.Kahle2020-upd2024-03-04/exported.predictions.Kahle2020.v2.csv')
+    df_barrier_features_kahle = pd.read_csv('datasets/exported.predictions.Kahle2020.v2.csv')
 
     barrier_robust_0p_features = list(filter(lambda x: x.find('barrier_robust_0p') != -1 and x.find('masked1p5') == -1, df_barrier_features_kahle.columns.to_list()))
     union_features = list(filter(lambda x: x.find('union') != -1 and x.find('masked1p5') == -1, df_barrier_features_kahle.columns.to_list()))
     df_barrier_features_kahle = df_barrier_features_kahle[barrier_robust_0p_features + union_features + ['src_id', 'diffusion_mean_cm2_s']]
 
     kahle = pd.read_csv('kahle.csv')
-    df_kahle_fin = df_barrier_features_kahle.merge(kahle, left_on = ['src_id', 'diffusion_mean_cm2_s'], right_on = ['src_id', 'diffusion_mean_cm2_s'])
+    df_kahle_fin = kahle.merge(df_barrier_features_kahle, left_on = ['src_id', 'diffusion_mean_cm2_s'], right_on = ['src_id', 'diffusion_mean_cm2_s'])
     df_kahle_fin = dataset_preprocessing(df_kahle_fin, 'structure')
 
     return df_kahle_fin
@@ -312,6 +313,8 @@ def get_nn_features_mpdb():
 
     return df_barrier_features_mpdb
 
+
+from misc_utils.augment_preds import join_data_and_preds_exp, join_data_and_preds_icsd
 
 def get_nn_features_exp():
     preds_mp = pd.read_csv("datasets/exported.predictions.mp.v2.csv")
