@@ -31,8 +31,7 @@ class ModelEvaluation():
     """
 
     def __init__(self, 
-                 df_kahle_fin: pd.DataFrame, 
-                 preds_Kahle2020: pd.DataFrame, 
+                 data_Kahle2020: pd.DataFrame, 
                  model_name: str, 
                  params: dict,
                  ):
@@ -41,7 +40,7 @@ class ModelEvaluation():
         Parameters
         ----------
 
-        df_kahle_fin: pd.DataFrame
+        data_Kahle2020: pd.DataFrame
             Pandas Dataframe with columns:  diffusion_mean_cm2_s [cm^2/s],
                                             sigma_S_cm [S/cm]
                                             group [A, B1, B2, C]
@@ -53,12 +52,12 @@ class ModelEvaluation():
         """
 
         self.model_name = model_name
-        self.df_kahle_fin = df_kahle_fin
-        self.preds_Kahle2020 = preds_Kahle2020
+        self.data_Kahle2020 = data_Kahle2020
         self.params = params
 
         self.roc_auc_averaged = []
         self.roc_like_comparison_averaged = []
+
 
 
     def fit(self, 
@@ -95,9 +94,9 @@ class ModelEvaluation():
         self.X = X
         self.feature_weights = feature_weights
 
-        self.y = (self.df_kahle_fin['sigma_S_cm'] >= thr_positive).to_numpy()
-        self.positive_weights = (1 - self.df_kahle_fin.apply(lambda x: math.erfc((x['sigma_S_cm'] - thr_positive) / x['sigma_S_cm_sem']) / 2, axis=1)).to_numpy()
-        self.negative_weights = (self.df_kahle_fin.apply(lambda x: math.erfc((x['sigma_S_cm'] - thr_negative) / x['sigma_S_cm_sem']) / 2, axis=1)).to_numpy()
+        self.y = (self.data_Kahle2020['sigma_S_cm'] >= thr_positive).to_numpy()
+        self.positive_weights = (1 - self.data_Kahle2020.apply(lambda x: math.erfc((x['sigma_S_cm'] - thr_positive) / x['sigma_S_cm_sem']) / 2, axis=1)).to_numpy()
+        self.negative_weights = (self.data_Kahle2020.apply(lambda x: math.erfc((x['sigma_S_cm'] - thr_negative) / x['sigma_S_cm_sem']) / 2, axis=1)).to_numpy()
         self.threshold = threshold
         self.feature_names = feature_names
 
@@ -200,7 +199,6 @@ class ModelEvaluation():
 
         number_iterations = self.X.shape[0]
 
-        preds_kahle_loop /= number_iterations
         preds_mpdb_loop /= number_iterations
         preds_exp_loop /= number_iterations
 
@@ -285,7 +283,6 @@ class ModelEvaluation():
             if isinstance(model, CatBoostClassifier):
                 train_pool = Pool(X_scaled, label = labels, weight = weights)
                 model.fit(train_pool)
-
             else:
                 model.fit(X_scaled, labels, sample_weight = weights)
 
@@ -324,7 +321,6 @@ class ModelEvaluation():
 
         number_iterations = self.X.shape[0]
 
-        preds_kahle_loop /= number_iterations
         preds_mpdb_loop /= number_iterations
         preds_exp_loop /= number_iterations
 
@@ -333,7 +329,7 @@ class ModelEvaluation():
 
 
 
-    def evaluate_with_cv(self, num_of_evaluations = 40, X_mpdb = None, X_exp = None):
+    def evaluate_with_cv(self, num_of_evaluations = 40, random_splits = None, X_mpdb = None, X_exp = None):
 
         """
         Parameters
@@ -348,15 +344,18 @@ class ModelEvaluation():
         """
         
         self.num_of_evaluations = num_of_evaluations
+
+        if type(random_splits) == type(None):
+            self.random_splits = np.random.randint(10000, size = self.num_of_evaluations)
+        else: 
+            self.random_splits = random_splits
+        
         self.train_roc_auc = []
         self.test_roc_auc = []
         self.roc_like_comparison = []
 
         self.feature_importance = np.zeros(self.X.shape[1])
         self.feature_entarances = np.zeros(self.X.shape[1])
-
-        self.random_splits = np.random.randint(10000, size = num_of_evaluations)
-        print(self.random_splits)
 
         self.preds_kahle = []
         self.preds_mpdb = []
@@ -377,14 +376,14 @@ class ModelEvaluation():
             self.test_roc_auc.append([mean_test, std_test])
             self.train_roc_auc.append([np.mean(train_roc_auc_loop), np.std(train_roc_auc_loop)])
 
-            self.roc_like_comparison.append(calculate_ROClikeComparisonMetricsKahle(self.preds_Kahle2020, preds_kahle_loop))
+            self.roc_like_comparison.append(calculate_ROClikeComparisonMetricsKahle(self.data_Kahle2020, preds_kahle_loop))
             self.preds_kahle.append(preds_kahle_loop)
             self.preds_mpdb.append(preds_mpdb_loop)
             self.preds_exp.append(preds_exp_loop)
 
 
 
-    def evaluate(self, num_of_evaluations = 40, X_mpdb = None, X_exp = None):
+    def evaluate(self, num_of_evaluations = 40, random_splits = None, X_mpdb = None, X_exp = None):
 
         """
         Parameters
@@ -403,13 +402,15 @@ class ModelEvaluation():
         self.test_roc_auc = []
         self.roc_like_comparison = []
 
+        if type(random_splits) == type(None):
+            self.random_splits = np.random.randint(10000, size = self.num_of_evaluations)
+        else: 
+            self.random_splits = random_splits
+        
+
         self.feature_importance = np.zeros(self.X.shape[1])
         self.feature_entarances = np.zeros(self.X.shape[1])
 
-        self.random_splits = np.random.randint(10000, size = num_of_evaluations)
-        print(self.random_splits)
-
-        # self.random_splits = np.array([1712, 9072, 2749, 8903, 3385, 4226, 4061,  663, 9294,  164])
         self.preds_kahle = []
         self.preds_mpdb = []
         self.preds_exp = []
@@ -429,7 +430,7 @@ class ModelEvaluation():
             self.test_roc_auc.append([mean_test, std_test])
             self.train_roc_auc.append([np.mean(train_roc_auc_loop), np.std(train_roc_auc_loop)])
 
-            self.roc_like_comparison.append(calculate_ROClikeComparisonMetricsKahle(self.preds_Kahle2020, preds_kahle_loop))
+            self.roc_like_comparison.append(calculate_ROClikeComparisonMetricsKahle(self.data_Kahle2020, preds_kahle_loop))
             self.preds_kahle.append(preds_kahle_loop)
             self.preds_mpdb.append(preds_mpdb_loop)
             self.preds_exp.append(preds_exp_loop)
@@ -482,7 +483,7 @@ class ModelEvaluation():
 
             estimated_mean, estimated_std = bootstrap_roc_auc(1000, self.y, preds_kahle_agg / (index + 1))
             self.roc_auc_averaged.append([estimated_mean, estimated_std])
-            self.roc_like_comparison_averaged.append(calculate_ROClikeComparisonMetricsKahle(self.preds_Kahle2020, preds_kahle_agg / (index + 1)))
+            self.roc_like_comparison_averaged.append(calculate_ROClikeComparisonMetricsKahle(self.data_Kahle2020, preds_kahle_agg / (index + 1)))
 
             self.preds_kahle_averaged.append(preds_kahle_agg / (index + 1))
             self.preds_mpdb_averaged.append(preds_mpdb_agg / (index + 1))
@@ -598,7 +599,7 @@ class ModelEvaluation():
 
         """    
         plot_distribution_compared(
-        self.df_kahle_fin,
+        self.data_Kahle2020,
         self.preds_kahle[0],
         np.array(self.preds_kahle).sum(axis = 0) / len(self.preds_kahle), 
         title
