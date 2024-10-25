@@ -188,7 +188,7 @@ class ModelEvaluation():
             self.feature_importance += model.get_feature_importance()
             self.feature_entarances += model.get_feature_importance() != 0
 
-        if self.model_name == 'logreg':
+        if self.model_name == 'logreg' or self.model_name == 'logreg_cv':
             self.feature_importance += model.coef_[0]
             self.feature_entarances += model.coef_[0] != 0
 
@@ -265,8 +265,10 @@ class ModelEvaluation():
             labels = np.hstack((np.ones(X_scaled_positive.shape[0]), np.zeros(X_scaled_negative.shape[0])))
             weights = np.hstack([positive_weights[positive_weights > self.threshold], negative_weights[negative_weights > self.threshold]])
             X_scaled = np.vstack([X_scaled_positive, X_scaled_negative])
-            
 
+
+            print('AAAAAAAAAAAAA')
+            print(self.model_name)
             if self.model_name == 'lightgbm':
                 model = LGBMClassifier(**self.params, seed = random_split, bagging_seed = random_split, feature_weights = self.feature_weights)
         
@@ -278,6 +280,9 @@ class ModelEvaluation():
 
             if self.model_name == 'random':
                 model = RandomModel(random_state = random_split)
+
+            if self.model_name == 'logreg_cv':
+                model = LogisticRegressionCV(**self.params, verbose = False, random_state = random_split)
 
 
             if isinstance(model, CatBoostClassifier):
@@ -310,7 +315,7 @@ class ModelEvaluation():
             self.feature_importance += model.get_feature_importance()
             self.feature_entarances += model.get_feature_importance() != 0
 
-        if self.model_name == 'logreg':
+        if self.model_name == 'logreg' or self.model_name == 'logreg_cv':
             self.feature_importance += model.coef_[0]
             self.feature_entarances += model.coef_[0] != 0
 
@@ -328,58 +333,6 @@ class ModelEvaluation():
 
 
 
-
-    def evaluate_with_cv(self, num_of_evaluations = 40, random_splits = None, X_mpdb = None, X_exp = None):
-
-        """
-        Parameters
-        ----------
-
-        num_of_evaluations: int
-            Number of iterations to test pipeline
-
-        X_mpdb: np.ndarray
-            Numpy array of material project database to make aggregated predictions
-
-        """
-        
-        self.num_of_evaluations = num_of_evaluations
-
-        if type(random_splits) == type(None):
-            self.random_splits = np.random.randint(10000, size = self.num_of_evaluations)
-        else: 
-            self.random_splits = random_splits
-        
-        self.train_roc_auc = []
-        self.test_roc_auc = []
-        self.roc_like_comparison = []
-
-        self.feature_importance = np.zeros(self.X.shape[1])
-        self.feature_entarances = np.zeros(self.X.shape[1])
-
-        self.preds_kahle = []
-        self.preds_mpdb = []
-        self.preds_exp = []
-
-        self.X_mpdb = X_mpdb
-        self.X_exp = X_exp
-
-        for i in trange(num_of_evaluations):
-
-            if i == 0:
-                train_roc_auc_loop, preds_kahle_loop, preds_mpdb_loop, preds_exp_loop = self.train_loop_with_cv(random_split = self.random_splits[i], verbose = True)
-            else:
-                train_roc_auc_loop, preds_kahle_loop, preds_mpdb_loop, preds_exp_loop = self.train_loop_with_cv(random_split = self.random_splits[i], verbose = False)
-
-            mean_test, std_test = bootstrap_roc_auc(1000, self.y, preds_kahle_loop)
-
-            self.test_roc_auc.append([mean_test, std_test])
-            self.train_roc_auc.append([np.mean(train_roc_auc_loop), np.std(train_roc_auc_loop)])
-
-            self.roc_like_comparison.append(calculate_ROClikeComparisonMetricsKahle(self.data_Kahle2020, preds_kahle_loop))
-            self.preds_kahle.append(preds_kahle_loop)
-            self.preds_mpdb.append(preds_mpdb_loop)
-            self.preds_exp.append(preds_exp_loop)
 
 
 
@@ -419,6 +372,7 @@ class ModelEvaluation():
         self.X_exp = X_exp
 
         for i in trange(num_of_evaluations):
+            print('a')
 
             if i == 0:
                 train_roc_auc_loop, preds_kahle_loop, preds_mpdb_loop, preds_exp_loop = self.train_loop(random_split = self.random_splits[i], verbose = True)
@@ -546,7 +500,7 @@ class ModelEvaluation():
         axs[2, 1].set_ylabel('metric value')
         axs[2, 1].set_xlabel('number of models');
 
-        if self.model_name == 'logreg':
+        if self.model_name == 'logreg' or self.model_name == 'logreg_cv':
             self.feature_importance = np.abs(self.feature_importance)
 
         idx = np.argsort(self.feature_importance)[-50:]
@@ -572,7 +526,7 @@ class ModelEvaluation():
         fig, axs = plt.subplots(1, 1, figsize=(15, 10))
         fig.suptitle(f'', fontsize=15)
 
-        if self.model_name == 'logreg':
+        if self.model_name == 'logreg' or self.model_name == 'logreg_cv':
             self.feature_importance = np.abs(self.feature_importance)
 
         idx = np.argsort(self.feature_importance)[-50:]
